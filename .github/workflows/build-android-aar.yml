@@ -1,0 +1,58 @@
+name: Build libXray Android AAR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.0'
+          cache: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: sdkmanager "ndk;29.0.13113456"
+
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260821190718-4776eadac327
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Initialize gomobile
+        run: gomobile init
+
+      - name: Build libXray
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/29.0.13113456
+        run: |
+          python3 build/main.py android
+
+      - name: Verify AAR
+        run: |
+          ls -lh libXray.aar
+          file libXray.aar
+
+      - name: Upload AAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: libXray-android
+          path: |
+            libXray.aar
+            libXray-sources.jar

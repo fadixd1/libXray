@@ -54,7 +54,7 @@ func run(options runOptions) error {
 	}
 	defer dns.ResetDNS()
 
-	if err := xray.RunXray(string(config)); err != nil {
+	if err := xray.RunXray(string(config), 0); err != nil {
 		return err
 	}
 

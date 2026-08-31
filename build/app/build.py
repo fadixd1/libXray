@@ -110,7 +110,7 @@ class Builder(object):
     def download_geo(self):
         os.chdir(self.lib_dir)
         main_path = os.path.join("download_geo", "main.go")
-        ret = subprocess.run(["go", "run", main_path])
+        ret = subprocess.run(["go", "run", "-ldflags=-checklinkname=0", main_path])
         if ret.returncode != 0:
             raise Exception("download_geo failed")
 

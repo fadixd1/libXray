@@ -234,6 +234,6 @@ func invokeRunXray(payload json.RawMessage) string {
 	if err != nil {
 		return encodeInvokeNoDataResponse(err)
 	}
-	err = xray.RunXray(request.XrayJson)
+	err = xray.RunXray(request.XrayJson, request.TunFd)
 	return encodeInvokeNoDataResponse(err)
 }

@@ -22,13 +22,13 @@ func TestRunXrayRejectsDuplicateStart(t *testing.T) {
 	if err := StopXray(); err != nil {
 		t.Fatalf("reset xray state: %v", err)
 	}
-	if err := RunXray(minimalConfig); err != nil {
+	if err := RunXray(minimalConfig, 0); err != nil {
 		t.Fatalf("start xray: %v", err)
 	}
 	if !GetXrayState() {
 		t.Fatal("xray should be running")
 	}
-	if err := RunXray(minimalConfig); !errors.Is(err, ErrAlreadyRunning) {
+	if err := RunXray(minimalConfig, 0); !errors.Is(err, ErrAlreadyRunning) {
 		t.Fatalf("duplicate start error = %v, want %v", err, ErrAlreadyRunning)
 	}
 }
@@ -37,7 +37,7 @@ func TestXrayLifecycleConcurrentStateReads(t *testing.T) {
 	if err := StopXray(); err != nil {
 		t.Fatalf("reset xray state: %v", err)
 	}
-	if err := RunXray(minimalConfig); err != nil {
+	if err := RunXray(minimalConfig, 0); err != nil {
 		t.Fatalf("start xray: %v", err)
 	}
 
@@ -63,13 +63,13 @@ func TestRunXrayFailureDoesNotPublishInstance(t *testing.T) {
 	if err := StopXray(); err != nil {
 		t.Fatalf("reset xray state: %v", err)
 	}
-	if err := RunXray(`{"outbounds":[`); err == nil {
+	if err := RunXray(`{"outbounds":[`, 0); err == nil {
 		t.Fatal("invalid config should fail")
 	}
 	if GetXrayState() {
 		t.Fatal("failed start must not publish an instance")
 	}
-	if err := RunXray(minimalConfig); err != nil {
+	if err := RunXray(minimalConfig, 0); err != nil {
 		t.Fatalf("start after failure: %v", err)
 	}
 	if err := StopXray(); err != nil {
@@ -94,7 +94,7 @@ func TestRunXraySerializesConcurrentStarts(t *testing.T) {
 		starters.Add(1)
 		go func() {
 			defer starters.Done()
-			errorsByStart <- RunXray(minimalConfig)
+			errorsByStart <- RunXray(minimalConfig, 0)
 		}()
 	}
 	starters.Wait()

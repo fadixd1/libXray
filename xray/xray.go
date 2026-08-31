@@ -2,6 +2,8 @@ package xray
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -34,7 +36,7 @@ func newXrayInstance(xrayJSON string) (*core.Instance, error) {
 
 // Run Xray instance.
 // xrayJSON is the serialized Xray JSON configuration.
-func RunXray(xrayJSON string) (err error) {
+func RunXray(xrayJSON string, tunFd int) (err error) {
 	coreServerMu.Lock()
 	defer coreServerMu.Unlock()
 	if coreServer != nil {
@@ -42,6 +44,12 @@ func RunXray(xrayJSON string) (err error) {
 	}
 
 	memory.InitForceFree()
+
+	if tunFd >= 3 {
+		if err := os.Setenv("xray.tun.fd", fmt.Sprintf("%d", tunFd)); err != nil {
+			return err
+		}
+	}
 	server, err := newXrayInstance(xrayJSON)
 	if err != nil {
 		return

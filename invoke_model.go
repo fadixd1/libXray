@@ -97,6 +97,7 @@ type PingBatchItemResponse struct {
 
 type RunXrayRequest struct {
 	XrayJson string `json:"xrayJson,omitempty"`
+	TunFd    int    `json:"tunFd,omitempty"`
 }
 
 type TestXrayRequest struct {
